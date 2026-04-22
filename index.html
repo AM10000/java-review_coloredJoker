@@ -1,843 +1,683 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Jeopardy!</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet"/>
-  <style>
-    :root {
-      --blue-dark: #0a1628;
-      --blue-mid: #0e2150;
-      --blue-bright: #1a3fa8;
-      --blue-cell: #1432a0;
-      --gold: #f5c518;
-      --gold-dim: #c49a10;
-      --white: #ffffff;
-      --silver: #d0d8f0;
-      --green: #27ae60;
-      --red: #c0392b;
-      --purple: #7b42c9;
-      --cell-hover: #2348c0;
-      --answered: #0a1628;
-      --shadow: 0 4px 24px rgba(0,0,0,0.5);
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Java Jeopardy – AP CSA Review Game</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Mono:wght@400;600&family=Barlow:wght@400;600;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #020817;
+    --surface: #0f172a;
+    --surface2: #1e293b;
+    --border: #1e3a5f;
+    --blue-dark: #1e3a5f;
+    --blue-mid: #1d4ed8;
+    --blue-light: #2563eb;
+    --yellow: #fde047;
+    --yellow-dark: #ca8a04;
+    --green: #4ade80;
+    --rose: #f43f5e;
+    --emerald: #10b981;
+    --violet: #7c3aed;
+    --slate-text: #94a3b8;
+    --white: #f1f5f9;
+  }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      background: var(--blue-dark);
-      font-family: 'Barlow', sans-serif;
-      color: var(--white);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px 12px 40px;
-    }
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+  }
 
-    /* ── HEADER ── */
-    header {
-      text-align: center;
-      margin-bottom: 18px;
-    }
-    header h1 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(3rem, 8vw, 6rem);
-      letter-spacing: 0.12em;
-      color: var(--gold);
-      text-shadow: 0 0 30px rgba(245,197,24,0.5), 3px 3px 0 #8a6d00;
-      line-height: 1;
-    }
-    header p {
-      font-size: 0.85rem;
-      color: var(--silver);
-      letter-spacing: 0.08em;
-      margin-top: 4px;
-    }
+  h1, h2, .score-label { font-family: 'Black Han Sans', sans-serif; }
 
-    /* ── SCOREBOARDS ── */
-    .scoreboard {
-      display: flex;
-      gap: 14px;
-      margin-bottom: 22px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    .team-card {
-      background: var(--blue-mid);
-      border: 2px solid var(--blue-bright);
-      border-radius: 10px;
-      padding: 10px 22px;
-      text-align: center;
-      min-width: 160px;
-      box-shadow: var(--shadow);
-      transition: border-color 0.2s;
-    }
-    .team-card.active { border-color: var(--gold); }
-    .team-name {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.25rem;
-      letter-spacing: 0.1em;
-      color: var(--silver);
-      cursor: pointer;
-    }
-    .team-name:hover { color: var(--gold); }
-    .team-name[contenteditable="true"] { outline: 1px dashed var(--gold); padding: 0 4px; border-radius: 3px; }
-    .team-score {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 2.4rem;
-      color: var(--gold);
-      line-height: 1.1;
-    }
-    .score-btns { display: flex; gap: 6px; margin-top: 6px; justify-content: center; }
-    .score-btn {
-      border: none; cursor: pointer; border-radius: 5px;
-      font-family: 'Bebas Neue', sans-serif; font-size: 1rem;
-      padding: 3px 10px; letter-spacing: 0.05em; transition: opacity 0.15s;
-    }
-    .score-btn:hover { opacity: 0.85; }
-    .score-btn.plus  { background: var(--green); color: #fff; }
-    .score-btn.minus { background: var(--red);   color: #fff; }
-    .score-btn.reset-team { background: #444; color: #ccc; font-size: 0.7rem; padding: 3px 8px; }
+  button {
+    cursor: pointer;
+    border: none;
+    font-family: 'Barlow', sans-serif;
+    font-weight: 800;
+    transition: filter .15s, transform .1s;
+  }
+  button:hover:not(:disabled) { filter: brightness(1.15); }
+  button:active:not(:disabled) { transform: scale(.97); }
+  button:disabled { cursor: not-allowed; }
 
-    /* ── GAME BOARD ── */
-    .board-wrapper {
-      width: 100%;
-      max-width: 1100px;
-      overflow-x: auto;
-    }
-    .board {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 6px;
-      width: 100%;
-      min-width: 600px;
-    }
+  input { font-family: 'Barlow', sans-serif; }
 
-    /* Category headers */
-    .category-header {
-      background: var(--blue-bright);
-      border: 2px solid #2a50c8;
-      border-radius: 8px;
-      text-align: center;
-      padding: 10px 6px;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(0.9rem, 1.8vw, 1.2rem);
-      letter-spacing: 0.08em;
-      color: var(--white);
-      cursor: pointer;
-      transition: background 0.2s;
-      word-break: break-word;
-    }
-    .category-header:hover { background: var(--cell-hover); }
-    .category-header[contenteditable="true"] {
-      outline: 2px dashed var(--gold);
-      color: var(--gold);
-    }
+  /* ── SETUP SCREEN ── */
+  #setup-screen {
+    max-width: 700px;
+    margin: 2rem auto;
+    border-radius: 1.5rem;
+    border: 1px solid var(--blue-mid);
+    background: var(--surface);
+    overflow: hidden;
+    box-shadow: 0 0 60px #1d4ed840;
+  }
+  .setup-header {
+    background: var(--blue-mid);
+    padding: 1.5rem 2rem;
+    text-align: center;
+  }
+  .setup-header h1 { font-size: 3rem; color: var(--yellow); letter-spacing: -1px; }
+  .setup-header p { color: #bfdbfe; margin-top: .4rem; font-size: .95rem; }
+  .setup-body { padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
+  .setup-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .setup-row h2 { font-size: 1.5rem; }
+  .setup-row p { font-size: .85rem; color: var(--slate-text); margin-top: .2rem; }
+  .team-list { display: flex; flex-direction: column; gap: .75rem; }
+  .team-entry {
+    display: flex; align-items: center; gap: .75rem;
+    background: var(--bg); border: 1px solid var(--surface2);
+    border-radius: 1rem; padding: .75rem 1rem;
+  }
+  .team-num {
+    width: 2.5rem; height: 2.5rem; border-radius: .75rem;
+    background: var(--blue-mid); display: flex; align-items: center; justify-content: center;
+    font-family: 'Black Han Sans', sans-serif; color: var(--yellow); font-size: 1rem;
+    flex-shrink: 0;
+  }
+  .team-entry input {
+    flex: 1; background: var(--surface2); border: 1px solid var(--surface2);
+    border-radius: .6rem; padding: .6rem .9rem; color: var(--white);
+    font-size: 1rem; outline: none;
+  }
+  .team-entry input:focus { border-color: var(--blue-light); }
+  .hint-box {
+    background: var(--bg); border: 1px solid var(--surface2);
+    border-radius: 1rem; padding: .75rem 1rem;
+    font-size: .85rem; color: var(--slate-text);
+  }
+  .setup-actions { display: flex; gap: .75rem; justify-content: flex-end; flex-wrap: wrap; }
 
-    /* Point cells */
-    .cell {
-      background: var(--blue-cell);
-      border: 2px solid #2a50c8;
-      border-radius: 8px;
-      text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px 6px;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(1.2rem, 3vw, 2rem);
-      color: var(--gold);
-      cursor: pointer;
-      min-height: 72px;
-      box-shadow: var(--shadow);
-      transition: background 0.15s, transform 0.1s, opacity 0.2s;
-      user-select: none;
-      position: relative;
-    }
-    .cell:hover:not(.answered) { background: var(--cell-hover); transform: scale(1.03); }
-    .cell.answered {
-      background: var(--answered);
-      color: transparent;
-      border-color: #1a2a60;
-      cursor: default;
-      pointer-events: none;
-    }
+  /* ── BUTTONS ── */
+  .btn { padding: .55rem 1.1rem; border-radius: 1rem; font-size: .9rem; }
+  .btn-yellow { background: var(--yellow); color: #020817; }
+  .btn-blue { background: var(--blue-mid); color: var(--white); }
+  .btn-slate { background: var(--surface2); color: var(--white); }
+  .btn-emerald { background: #065f46; color: var(--white); }
+  .btn-rose { background: #9f1239; color: var(--white); }
+  .btn-violet { background: var(--violet); color: var(--white); }
+  .btn-amber { background: #92400e; color: var(--white); }
+  .btn-disabled { background: var(--surface2); color: #475569; cursor: not-allowed; }
 
-    /* ── MODAL ── */
-    .overlay {
-      display: none;
-      position: fixed; inset: 0;
-      background: rgba(0,0,10,0.85);
-      z-index: 100;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    .overlay.open { display: flex; }
+  /* ── GAME SCREEN ── */
+  #game-screen { padding: 1.25rem; max-width: 1280px; margin: 0 auto; padding-bottom: 11rem; }
+  .game-header { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
+  .game-title h1 { font-size: 3rem; color: var(--yellow); letter-spacing: -1px; }
+  .game-title p { color: var(--slate-text); margin-top: .25rem; font-size: .9rem; }
+  .game-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
 
-    .modal {
-      background: var(--blue-mid);
-      border: 3px solid var(--gold);
-      border-radius: 16px;
-      width: 100%;
-      max-width: 640px;
-      padding: 32px 28px 24px;
-      box-shadow: 0 0 60px rgba(245,197,24,0.2);
-      position: relative;
-      animation: popIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
-    }
-    @keyframes popIn {
-      from { transform: scale(0.8); opacity: 0; }
-      to   { transform: scale(1);   opacity: 1; }
-    }
-    .modal-close {
-      position: absolute; top: 14px; right: 18px;
-      background: none; border: none; color: var(--silver);
-      font-size: 1.6rem; cursor: pointer; line-height: 1;
-    }
-    .modal-close:hover { color: var(--gold); }
-    .modal-points {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.1rem; letter-spacing: 0.1em;
-      color: var(--gold); margin-bottom: 6px;
-    }
-    .modal-category {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.4rem; letter-spacing: 0.08em;
-      color: var(--silver); margin-bottom: 18px;
-    }
-    .modal-question {
-      font-size: 1.35rem;
-      font-weight: 700;
-      color: var(--white);
-      line-height: 1.45;
-      margin-bottom: 20px;
-      min-height: 60px;
-    }
-    .reveal-btn {
-      background: var(--gold);
-      color: var(--blue-dark);
-      border: none; border-radius: 8px;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.2rem; letter-spacing: 0.08em;
-      padding: 10px 26px; cursor: pointer;
-      transition: background 0.15s, transform 0.1s;
-    }
-    .reveal-btn:hover { background: #e0b400; transform: scale(1.04); }
-    .modal-answer {
-      display: none;
-      background: rgba(245,197,24,0.12);
-      border: 1px solid var(--gold-dim);
-      border-radius: 8px;
-      padding: 14px 18px;
-      font-size: 1.15rem;
-      font-weight: 600;
-      color: var(--gold);
-      margin-top: 16px;
-      line-height: 1.5;
-    }
-    .modal-answer.visible { display: block; }
+  /* ── CHECKS ── */
+  #checks-panel {
+    margin-bottom: 1.5rem;
+    border: 1px solid #6d28d9; background: #1e1b4b55;
+    border-radius: 1.5rem; padding: 1rem;
+  }
+  .checks-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: .75rem; }
+  .checks-top h2 { font-size: 1rem; color: #ddd6fe; font-weight: 800; }
+  .checks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; font-size: .82rem; }
+  @media (max-width: 600px) { .checks-grid { grid-template-columns: 1fr; } }
+  .check-item { border-radius: .75rem; padding: .45rem .75rem; }
+  .check-pass { border: 1px solid #065f46; background: #052e1655; color: #6ee7b7; }
+  .check-fail { border: 1px solid #9f1239; background: #4c051655; color: #fda4af; }
+  .check-item strong { display: block; }
 
-    .modal-actions {
-      display: flex; gap: 10px; flex-wrap: wrap;
-      margin-top: 20px; align-items: center;
-    }
-    .modal-actions label {
-      font-size: 0.8rem; color: var(--silver); letter-spacing: 0.05em;
-      margin-right: 2px;
-    }
-    .award-btn {
-      border: none; cursor: pointer; border-radius: 6px;
-      font-family: 'Bebas Neue', sans-serif; font-size: 1rem;
-      letter-spacing: 0.05em; padding: 7px 16px; transition: opacity 0.15s;
-    }
-    .award-btn:hover { opacity: 0.85; }
-    .award-btn.correct  { background: var(--green); color: #fff; }
-    .award-btn.wrong    { background: var(--red);   color: #fff; }
-    .mark-answered-btn {
-      margin-left: auto;
-      border: 1px solid var(--silver); background: transparent;
-      color: var(--silver); border-radius: 6px;
-      font-family: 'Barlow', sans-serif; font-size: 0.82rem;
-      padding: 6px 12px; cursor: pointer;
-    }
-    .mark-answered-btn:hover { border-color: var(--gold); color: var(--gold); }
+  /* ── BOARD ── */
+  #board {
+    border-radius: 1.5rem; overflow: hidden;
+    border: 1px solid var(--blue-dark);
+    background: #0c1a3d;
+    box-shadow: 0 0 80px #1d4ed830;
+  }
+  .board-header { display: grid; grid-template-columns: repeat(6, 1fr); border-bottom: 1px solid var(--blue-dark); }
+  .cat-header {
+    background: var(--blue-mid); min-height: 100px;
+    padding: 1rem .75rem;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center; border-right: 1px solid var(--blue-dark);
+    flex-direction: column; gap: .25rem;
+  }
+  .cat-header:last-child { border-right: none; }
+  .cat-key { font-size: .7rem; text-transform: uppercase; letter-spacing: .2em; color: #93c5fd; }
+  .cat-title { font-family: 'Black Han Sans', sans-serif; font-size: .85rem; color: #fef9c3; line-height: 1.25; }
+  .board-row { display: grid; grid-template-columns: repeat(6, 1fr); border-bottom: 1px solid var(--blue-dark); }
+  .board-row:last-child { border-bottom: none; }
+  .clue-cell {
+    min-height: 110px; border-right: 1px solid var(--blue-dark);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: .5rem;
+    background: var(--blue-light);
+    transition: background .15s;
+  }
+  .clue-cell:last-child { border-right: none; }
+  .clue-cell:hover:not(.used) { background: #1d4ed8; }
+  .clue-cell.used { background: var(--surface); cursor: not-allowed; }
+  .clue-value { font-family: 'Black Han Sans', sans-serif; font-size: 2.25rem; color: var(--yellow); }
+  .clue-cell.used .clue-value { color: var(--surface2); }
+  .dd-label { font-size: .65rem; letter-spacing: .25em; color: var(--white); margin-top: .4rem; text-transform: uppercase; }
 
-    /* ── EDIT MODAL ── */
-    .edit-modal {
-      background: var(--blue-dark);
-      border: 2px solid var(--blue-bright);
-      border-radius: 14px;
-      width: 100%; max-width: 520px;
-      padding: 28px 24px 22px;
-      position: relative;
-    }
-    .edit-modal h2 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.6rem; letter-spacing: 0.1em;
-      color: var(--gold); margin-bottom: 18px;
-    }
-    .edit-modal label {
-      display: block; font-size: 0.82rem;
-      letter-spacing: 0.06em; color: var(--silver);
-      margin-bottom: 4px; margin-top: 14px;
-    }
-    .edit-modal textarea, .edit-modal input {
-      width: 100%; background: var(--blue-mid);
-      border: 1px solid var(--blue-bright); border-radius: 6px;
-      color: var(--white); font-family: 'Barlow', sans-serif;
-      font-size: 0.95rem; padding: 8px 12px; resize: vertical;
-    }
-    .edit-modal textarea { min-height: 80px; }
-    .edit-modal input:focus, .edit-modal textarea:focus {
-      outline: none; border-color: var(--gold);
-    }
-    .save-btn {
-      margin-top: 18px; background: var(--gold);
-      color: var(--blue-dark); border: none; border-radius: 8px;
-      font-family: 'Bebas Neue', sans-serif; font-size: 1.15rem;
-      letter-spacing: 0.08em; padding: 10px 28px; cursor: pointer;
-    }
-    .save-btn:hover { background: #e0b400; }
+  /* ── ALL DONE ── */
+  #all-done {
+    margin-top: 1.5rem; border-radius: 1.5rem;
+    border: 1px solid #a16207; background: #fde04720;
+    padding: 1.25rem; text-align: center;
+  }
+  #all-done h2 { font-size: 1.75rem; color: var(--yellow); }
+  #all-done p { color: var(--slate-text); margin-top: .3rem; }
 
-    /* ── RESET BAR ── */
-    .controls {
-      margin-top: 22px;
-      display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
-    }
-    .ctrl-btn {
-      background: var(--blue-mid); border: 1px solid var(--blue-bright);
-      color: var(--silver); border-radius: 7px;
-      font-family: 'Barlow', sans-serif; font-size: 0.88rem;
-      padding: 7px 18px; cursor: pointer; transition: 0.15s;
-    }
-    .ctrl-btn:hover { border-color: var(--gold); color: var(--gold); }
+  /* ── SCOREBOARD ── */
+  #scoreboard {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
+    padding: .75rem 1rem;
+  }
+  .scoreboard-inner {
+    max-width: 1280px; margin: 0 auto;
+    border-radius: 1.5rem; border: 1px solid var(--surface2);
+    background: #0f172af5; backdrop-filter: blur(12px);
+    overflow: hidden; box-shadow: 0 -8px 40px #00000060;
+  }
+  .scoreboard-top {
+    padding: .6rem 1.25rem; border-bottom: 1px solid var(--surface2);
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .score-label { font-size: 1.1rem; color: var(--yellow); }
+  .last-val { font-size: .8rem; color: var(--slate-text); }
+  .last-val span { font-weight: 800; color: var(--white); }
+  .scoreboard-teams { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; padding: .75rem 1rem; }
+  @media (max-width: 600px) { .scoreboard-teams { grid-template-columns: 1fr; } }
+  .score-entry {
+    background: var(--bg); border: 1px solid var(--surface2);
+    border-radius: 1rem; padding: .6rem 1rem;
+    display: flex; align-items: center; justify-content: space-between; gap: .5rem;
+  }
+  .team-name { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .score-input {
+    width: 7rem; background: var(--surface); border: 1px solid var(--surface2);
+    border-radius: .6rem; padding: .4rem .6rem;
+    text-align: right; font-family: 'Black Han Sans', sans-serif;
+    font-size: 1.4rem; color: var(--yellow); outline: none;
+  }
+  .score-input:focus { border-color: var(--blue-light); }
 
-    /* ── TOAST ── */
-    .toast {
-      position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-      background: var(--blue-mid); border: 1px solid var(--gold);
-      border-radius: 8px; padding: 10px 24px;
-      font-size: 0.9rem; color: var(--gold);
-      opacity: 0; pointer-events: none;
-      transition: opacity 0.3s;
-      z-index: 999;
-    }
-    .toast.show { opacity: 1; }
+  /* ── MODAL ── */
+  #modal-overlay {
+    position: fixed; inset: 0; z-index: 50;
+    background: #00000099; backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center; padding: 1rem;
+  }
+  .modal {
+    width: 100%; max-width: 900px; max-height: 90vh;
+    border-radius: 1.75rem; border: 1px solid #1d4ed8;
+    background: #0c1a3d; box-shadow: 0 0 80px #1d4ed860;
+    overflow: hidden; display: flex; flex-direction: column;
+  }
+  .modal-header {
+    padding: 1rem 1.5rem; background: var(--blue-mid);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: .75rem; flex-shrink: 0;
+  }
+  .modal-meta { font-size: .75rem; text-transform: uppercase; letter-spacing: .3em; color: #93c5fd; }
+  .modal-title { font-family: 'Black Han Sans', sans-serif; font-size: 1.75rem; color: var(--yellow); }
+  .modal-btns { display: flex; gap: .5rem; flex-wrap: wrap; }
+  .modal-body { flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
+  .code-box, .prompt-box, .answer-box, .answer-hidden {
+    border-radius: 1.25rem; padding: 1.25rem;
+  }
+  .code-box { background: var(--bg); border: 1px solid var(--surface2); }
+  .prompt-box { background: var(--bg); border: 1px solid var(--surface2); }
+  .answer-box { background: var(--yellow); color: #020817; border: 1px solid #fef08a; }
+  .answer-hidden { background: var(--surface); border: 1px dashed var(--surface2); text-align: center; color: var(--slate-text); font-weight: 600; }
+  .box-label { font-size: .7rem; text-transform: uppercase; letter-spacing: .25em; color: var(--slate-text); margin-bottom: .6rem; }
+  .answer-box .box-label { color: #78350f; }
+  pre {
+    font-family: 'IBM Plex Mono', monospace; font-size: .9rem;
+    color: var(--green); white-space: pre-wrap; word-break: break-all;
+    line-height: 1.7;
+  }
+  .prompt-text { font-size: 1.4rem; font-weight: 800; color: var(--white); line-height: 1.4; }
+  .answer-text { font-family: 'Black Han Sans', sans-serif; font-size: 2rem; }
 
-    @media (max-width: 520px) {
-      .modal { padding: 24px 16px 18px; }
-      .modal-question { font-size: 1.1rem; }
-    }
-  </style>
+  .hidden { display: none !important; }
+</style>
 </head>
 <body>
 
-<header>
-  <h1>Jeopardy!</h1>
-  <p>Click a category header to rename it &mdash; click a cell to play &mdash; double-click a cell to edit its question</p>
-</header>
-
-<!-- SCOREBOARDS -->
-<div class="scoreboard" id="scoreboard"></div>
-
-<!-- BOARD -->
-<div class="board-wrapper">
-  <div class="board" id="board"></div>
-</div>
-
-<!-- CONTROLS -->
-<div class="controls">
-  <button class="ctrl-btn" onclick="resetBoard()">↺ Reset Board (unmark all)</button>
-  <button class="ctrl-btn" onclick="resetScores()">↺ Reset All Scores</button>
-</div>
-
-<!-- PLAY OVERLAY -->
-<div class="overlay" id="playOverlay">
-  <div class="modal">
-    <button class="modal-close" onclick="closePlay()">✕</button>
-    <div class="modal-points" id="modalPoints"></div>
-    <div class="modal-category" id="modalCategory"></div>
-    <div class="modal-question" id="modalQuestion"></div>
-    <button class="reveal-btn" id="revealBtn" onclick="revealAnswer()">Reveal Answer</button>
-    <div class="modal-answer" id="modalAnswer"></div>
-    <div class="modal-actions" id="modalActions" style="display:none">
-      <span class="label" style="color:var(--silver);font-size:0.82rem;letter-spacing:0.05em">Award to:</span>
-      <div id="awardBtns"></div>
-      <button class="mark-answered-btn" onclick="markAnswered()">Mark Answered ✓</button>
+<!-- SETUP SCREEN -->
+<div id="setup-screen">
+  <div class="setup-header">
+    <h1>Java Jeopardy</h1>
+    <p>Create the teams before opening the Jeopardy board.</p>
+  </div>
+  <div class="setup-body">
+    <div class="setup-row">
+      <div>
+        <h2>Team Setup</h2>
+        <p>Add and name the teams first.</p>
+      </div>
+      <button class="btn btn-emerald" onclick="addTeam()">Add Team</button>
+    </div>
+    <div class="team-list" id="team-list"></div>
+    <div class="hint-box">Scores will start at 0. During the game, the floating scoreboard stays pinned to the bottom and lets you type scores directly.</div>
+    <div class="setup-actions">
+      <button class="btn btn-slate" onclick="resetScores()">Reset Scores</button>
+      <button class="btn btn-yellow" onclick="startGame()">Start Game</button>
     </div>
   </div>
 </div>
 
-<!-- EDIT OVERLAY -->
-<div class="overlay" id="editOverlay">
-  <div class="edit-modal">
-    <button class="modal-close" onclick="closeEdit()">✕</button>
-    <h2>Edit Question</h2>
-    <label>QUESTION (what players see)</label>
-    <textarea id="editQ" rows="3"></textarea>
-    <label>ANSWER (shown after reveal)</label>
-    <textarea id="editA" rows="2"></textarea>
-    <button class="save-btn" onclick="saveEdit()">Save</button>
+<!-- GAME SCREEN -->
+<div id="game-screen" class="hidden">
+  <div class="game-header">
+    <div class="game-title">
+      <h1>Java Jeopardy</h1>
+      <p>AP CSA Review Game</p>
+    </div>
+    <div class="game-actions">
+      <button class="btn btn-amber" onclick="backToSetup()">Teams</button>
+      <button class="btn btn-blue" onclick="resetBoard()">Reset Board</button>
+      <button class="btn btn-slate" onclick="resetScores()">Reset Scores</button>
+      <button class="btn btn-violet" onclick="toggleChecks()">Show Checks</button>
+    </div>
+  </div>
+
+  <div id="checks-panel" class="hidden">
+    <div class="checks-top">
+      <h2>Built-in Data Checks</h2>
+      <span id="checks-count" style="font-size:.85rem;font-weight:800;color:#ddd6fe;"></span>
+    </div>
+    <div class="checks-grid" id="checks-grid"></div>
+  </div>
+
+  <div id="board">
+    <div class="board-header" id="board-header"></div>
+    <div id="board-rows"></div>
+  </div>
+
+  <div id="all-done" class="hidden">
+    <h2>Board Complete</h2>
+    <p>All clues have been played.</p>
   </div>
 </div>
 
-<!-- EDIT-ALL OVERLAY -->
-<div class="overlay" id="editAllOverlay">
-  <div class="edit-modal" style="max-width:700px;max-height:90vh;overflow-y:auto">
-    <button class="modal-close" onclick="closeEditAll()">✕</button>
-    <h2>Edit All Questions &amp; Answers</h2>
-    <p style="color:var(--silver);font-size:0.83rem;margin-bottom:10px">Fill in each row. Leave blank to keep placeholder text.</p>
-    <div id="editAllFields"></div>
-    <button class="save-btn" onclick="saveEditAll()">Save All</button>
+<!-- SCOREBOARD -->
+<div id="scoreboard" class="hidden">
+  <div class="scoreboard-inner">
+    <div class="scoreboard-top">
+      <div>
+        <div class="score-label">Scoreboard</div>
+        <div class="last-val">Last clue value: <span id="last-val-display">$100</span></div>
+      </div>
+      <div style="font-size:.8rem;color:var(--slate-text)">Type scores directly.</div>
+    </div>
+    <div class="scoreboard-teams" id="scoreboard-teams"></div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<!-- MODAL -->
+<div id="modal-overlay" class="hidden" onclick="handleOverlayClick(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <div class="modal-meta" id="modal-meta"></div>
+        <div class="modal-title" id="modal-cat-title"></div>
+      </div>
+      <div class="modal-btns">
+        <button class="btn btn-yellow" onclick="toggleAnswer()" id="answer-toggle-btn">Show Answer</button>
+        <button class="btn btn-emerald" onclick="markUsed()">Mark Used</button>
+        <button class="btn btn-slate" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="code-box">
+        <div class="box-label">Code</div>
+        <pre id="modal-code"></pre>
+      </div>
+      <div class="prompt-box">
+        <div class="box-label">Prompt</div>
+        <div class="prompt-text" id="modal-question"></div>
+      </div>
+      <div id="modal-answer-area"></div>
+    </div>
+  </div>
+</div>
 
 <script>
-// ╔══════════════════════════════════════════════════════════════════╗
-// ║              ★  EDIT YOUR GAME CONTENT HERE  ★                  ║
-// ║                                                                  ║
-// ║  1. Change the CATEGORY NAMES in the `categories` array.        ║
-// ║  2. Fill in QUESTIONS and ANSWERS below.                        ║
-// ║     Each column matches the category at the same position.      ║
-// ║     Each row matches a point value: $200 · $400 · $600 ·        ║
-// ║     $800 · $1000 · $2000 (top to bottom).                       ║
-// ║  3. Save the file — that's it! No buttons needed.               ║
-// ╚══════════════════════════════════════════════════════════════════╝
-
-const POINT_VALUES = [100, 200, 300, 400, 500, 600];
-
-// ── CATEGORY NAMES (6 total) ──────────────────────────────────────
-let categories = [
-  "Using Objects and Methods",   // Column 1
-  "Selection and Iteration",   // Column 2
-  "Class Creation",   // Column 3
-  "Data Collections 1",   // Column 4
-  "Data Collections 2",   // Column 5
-  "Data Collections 3"    // Column 6
-];
-
-// ── TEAM NAMES ───────────────────────────────────────────────────
-// Change these to your team names (you can also rename them in-game)
-const DEFAULT_TEAM_NAMES = ["Team 1", "Team 2", "Team 3"];
-
-// ── QUESTIONS & ANSWERS ──────────────────────────────────────────
-// Format:  { q: "Your question here", a: "Your answer here" }
-// Rows go $200 → $400 → $600 → $800 → $1000 → $2000
-
-let questions = [
-
-  // ── COLUMN 1: Category 1 ────────────────────────────────────────
-  [
-    { q: `public class Calculator 
-{
-    public static void main(String[] args) 
+const game = {
+  title: "Java Jeopardy",
+  subtitle: "AP CSA Review Game",
+  categories: [
     {
-        int x = 10 / 0; // Line 3
-        System.out.println(x);
-    }
-}
-The code compiles but there is an error when it is executed. What type of error occurs when executing Line 3?
-`,  a: "Runtime Error"  },  // $200
-    { q: `int age = 0;
-double height = 0.0;
-boolean isTall = false;
-Scanner in = null;
-
-True/ False: The code segment correctly assigns default values to all its variables. 
-`,  a: "True"  },  // $400
-    { q: `public static void main(String args[]){
-    
-    int x=4;
-    int y=5;
-    int z=6;    
-    x+=y;
-    z-=y;
-    y*=x;
-    int a=y;
-    a/=5;
-    int b=y;
-    b%=a;
-    
-    System.out.println(" x is : "+ x);    
-    System.out.println(" y is : "+ y);
-    System.out.println(" z is : "+ z);
-    System.out.println(" a is : "+ a);
-    System.out.println(" b is : "+ b);
-}
-What will be the output of the above code?
-`,  a: `x is : 9
-y is : 45
-z is : 1
-a is : 9
-b is : 0`  },  // $600
-    { q: `double num = 75.0;
-String str = "" + (num + 0.2);
-System.out.println(str);
-True/False: The code segment above will produce an error.
-`,  a: "False, the code segment will print 75.2."  },  // $800
-    { q: `    public class Z  
-    {  
-        public static int A(int x)  
-        {  
-            x *= -x;  
-            return(x);  
-        }  
-          
-        public static int B(int x)  
-        {  
-            x += x;  
-            return(x);  
-        }  
-        
-        public static int C(int x)  
-        {  
-            x/=2;  
-            return(x);  
-        }  
-    } 
-What is returned as a result of calling Z.C(Z.A(Z.B(Z.C(5)))) executed from another class ?
-`, a: "-8" },  // $1000
-    { q: `public class Chalkboard {
-
-              public void write (String date, String time){
-                     
-                    System.out.println("Today's  Date: "  + date + "    Day: " + time);
-                     }
-              public void write (String subject){
-                 
-                    System.out.println("Subject:  "  +  subject);
-                     }
-              public void write (int lines , String content){
-                
-                    int x=1;
-                    while (x<=lines) {
-                    System.out.println (x + " :  " +content);
-                    x++;
-                   
-                     }
-                   }
-    public static void main (String args[]){
-                Chalkboard board = new Chalkboard();
-                 board.write (" 4/6/2021", "Tuesday" );
-                 board.write("Computer Science");
-                 System.out.println();
-                  board.write (3, "This is an example of a while loop that loops three times.");
-
-          }
-}
-
-
-What is the output after running the program code ?
-`, a: `Today's  Date:  4/6/2021    Day: Tuesday
-Subject:  Computer Science
-
-1 :  This is an example of a while loop that loops three times.
-2 :  This is an example of a while loop that loops three times.
-3 :  This is an example of a while loop that loops three times.
-` },  // $2000
+      key: "A",
+      title: "Using Objects and Methods",
+      clues: [
+        { value: 100, code: `String s = "computer";\nSystem.out.println(s.indexOf("m"));`, question: "What is printed when this code executes?", answer: "2" },
+        { value: 200, code: `String s = "java";\nSystem.out.println(s.substring(1, 3).toUpperCase());`, question: "What is printed when this code executes?", answer: "AV" },
+        { value: 300, code: `String a = "hello";\nString b = "he" + "llo";\nSystem.out.println(a.equals(b));`, question: "What is printed when this code executes?", answer: "true" },
+        { value: 400, code: `String s = "apple";\nSystem.out.println(s.substring(0, s.indexOf("p")));`, question: "What is printed when this code executes?", answer: "a" },
+        { value: 500, code: `String s = "banana";\ns.substring(0, 3);\nSystem.out.println(s);`, question: "What is printed when this code executes?", answer: "banana" },
+        { value: 600, code: `String s = "abcdef";\ns = s.substring(1, 5);\ns = s.substring(1);\nSystem.out.println(s.length());`, question: "What is printed when this code executes?", answer: "3" },
+      ],
+    },
+    {
+      key: "B",
+      title: "Selection and Iteration",
+      clues: [
+        { value: 100, code: `int x = 7;\nif (x % 2 == 0) {\n    System.out.println("even");\n} else {\n    System.out.println("odd");\n}`, question: "What is printed when this code executes?", answer: "odd" },
+        { value: 200, code: `int x = 5;\nint y = 10;\nif (x > 3 || y < 5) {\n    System.out.println("A");\n} else {\n    System.out.println("B");\n}`, question: "What is printed when this code executes?", answer: "A" },
+        { value: 300, code: `int sum = 0;\nfor (int i = 1; i <= 4; i++) {\n    if (i % 2 == 1) {\n        sum += i;\n    }\n}\nSystem.out.println(sum);`, question: "What is printed when this code executes?", answer: "4" },
+        { value: 400, code: `int i = 1;\nwhile (i <= 3) {\n    System.out.print(i + " ");\n    i += 2;\n}`, question: "What is printed when this code executes?", answer: "1 3" },
+        { value: 500, code: `int count = 0;\nfor (int i = 1; i <= 3; i++) {\n    for (int j = 1; j <= 2; j++) {\n        if (i == j) {\n            count++;\n        }\n    }\n}\nSystem.out.println(count);`, question: "What is printed when this code executes?", answer: "2" },
+        { value: 600, code: `int x = 0;\nwhile (x < 5) {\n    if (x == 2) {\n        break;\n    }\n    System.out.print(x + " ");\n    x++;\n}`, question: "What is printed when this code executes?", answer: "0 1" },
+      ],
+    },
+    {
+      key: "C",
+      title: "Classes",
+      clues: [
+        { value: 100, code: `public class Book {\n    private int pages;\n    public Book(int p) {\n        if (p > 0) {\n            pages = p;\n        }\n    }\n}\n\nBook b = new Book(-25);`, question: "What is the value of pages in b after execution?", answer: "0" },
+        { value: 200, code: `public class Person {\n    private String name;\n    public Person(String name) {\n        name = name;\n    }\n    public String getName() {\n        return name;\n    }\n}\n\nPerson p = new Person("Alex");`, question: "What is the value returned by p.getName() after this code executes?", answer: "null" },
+        { value: 300, code: `public class Counter {\n    private static int count = 0;\n    private int id;\n    public Counter() {\n        count++;\n        id = count;\n    }\n    public int getId() { return id; }\n    public static int getCount() { return count; }\n}\n\nCounter a = new Counter();\nCounter b = new Counter();\nCounter c = new Counter();`, question: "What is the value returned by Counter.getCount() after this code executes?", answer: "3" },
+        { value: 400, code: `public class Test {\n    public static void main(String[] args) {\n        int x = 5;\n        if (true) {\n            int y = 10;\n        }\n        System.out.println(x + y);\n    }\n}`, question: "What happens when this code is compiled?", answer: "compile time error" },
+        { value: 500, code: `public class Calculator {\n    public int multiply(int a, int b) {\n        int result = a * b;\n    }\n}\n\nCalculator calc = new Calculator();\nint val = calc.multiply(3, 4);`, question: "What happens when this code is compiled?", answer: "compile time error" },
+        { value: 600, code: `public class Box {\n    private int value;\n    public Box(int v) { value = v; }\n    public void setValue(int v) { value = v; }\n    public int getValue() { return value; }\n}\n\npublic class Test {\n    public static void update(Box b) {\n        b.setValue(10);\n        b = new Box(20);\n    }\n    public static void main(String[] args) {\n        Box x = new Box(5);\n        update(x);\n    }\n}`, question: "What is the value of x.getValue() after main executes?", answer: "10" },
+      ],
+    },
+    {
+      key: "D",
+      title: "Arrays",
+      clues: [
+        { value: 100, code: `int[] data = new int[3];\ndata[0] = 5;\ndata[1] = 10;\nSystem.out.println(data[2]);`, question: "What is printed when this code executes?", answer: "0" },
+        { value: 200, code: `int[] nums = new int[4];\nnums[0] = 3;\nnums[1] = 6;\nnums[2] = 9;\nnums[3] = 12;\nSystem.out.println(nums[4]);`, question: "What happens when this code is executed?", answer: "runtime error (ArrayIndexOutOfBoundsException)" },
+        { value: 300, code: `int[] arr = {2, 4, 6, 8};\nint sum = 0;\nfor (int i = 0; i < arr.length; i++) {\n    sum += arr[i];\n}\nSystem.out.println(sum);`, question: "What is printed when this code executes?", answer: "20" },
+        { value: 400, code: `int[] arr = {1, 2, 3};\nfor (int val : arr) {\n    val = val * 2;\n}\nSystem.out.println(arr[0] + " " + arr[1] + " " + arr[2]);`, question: "What is printed when this code executes?", answer: "1 2 3" },
+        { value: 500, code: `int[] arr = {3, 1, 4, 1};\nint count = 0;\nfor (int i = 0; i < arr.length; i++) {\n    if (arr[i] == 1) {\n        count++;\n    }\n}\nSystem.out.println(count);`, question: "What is printed when this code executes?", answer: "2" },
+        { value: 600, code: `Integer a = 5;\nInteger b = 5;\nSystem.out.println(a == b);`, question: "What is printed when this code executes?", answer: "true" },
+      ],
+    },
+    {
+      key: "E",
+      title: "ArrayLists and 2D Arrays",
+      clues: [
+        { value: 100, code: `ArrayList<String> words = new ArrayList<String>();\nwords.add("red");\nwords.add("blue");\nwords.add(1, "green");\nSystem.out.println(words.get(1));`, question: "What is printed when this code executes?", answer: "green" },
+        { value: 200, code: `ArrayList<Integer> nums = new ArrayList<Integer>();\nnums.add(4);\nnums.add(7);\nnums.add(2);\nfor (int n : nums) {\n    System.out.print(n + " ");\n}`, question: "What is printed when this code executes?", answer: "4 7 2" },
+        { value: 300, code: `ArrayList<Integer> vals = new ArrayList<Integer>();\nvals.add(3);\nvals.add(1);\nvals.add(3);\nvals.add(2);\nint count = 0;\nfor (int i = 0; i < vals.size(); i++) {\n    if (vals.get(i) == 3) {\n        count++;\n    }\n}\nSystem.out.println(count);`, question: "What is printed when this code executes?", answer: "2" },
+        { value: 400, code: `int[][] grid = new int[2][3];\ngrid[0][1] = 5;\ngrid[1][2] = 8;\nSystem.out.println(grid[1][2]);`, question: "What is printed when this code executes?", answer: "8" },
+        { value: 500, code: `int[][] mat = {\n    {1, 2},\n    {3, 4},\n    {5, 6}\n};\nint sum = 0;\nfor (int r = 0; r < mat.length; r++) {\n    for (int c = 0; c < mat[0].length; c++) {\n        sum += mat[r][c];\n    }\n}\nSystem.out.println(sum);`, question: "What is printed when this code executes?", answer: "21" },
+        { value: 600, code: `int[][] board = {\n    {2, 1, 4},\n    {3, 5, 0}\n};\nint max = board[0][0];\nfor (int r = 0; r < board.length; r++) {\n    for (int c = 0; c < board[0].length; c++) {\n        if (board[r][c] > max) {\n            max = board[r][c];\n        }\n    }\n}\nSystem.out.println(max);`, question: "What is printed when this code executes?", answer: "5" },
+      ],
+    },
+    {
+      key: "F",
+      title: "Searching, Sorting, and Recursion",
+      clues: [
+        { value: 100, code: `int[] arr = {4, 7, 2, 9};\nint target = 2;\nint index = -1;\nfor (int i = 0; i < arr.length; i++) {\n    if (arr[i] == target) {\n        index = i;\n        break;\n    }\n}\nSystem.out.println(index);`, question: "What is printed when this code executes?", answer: "2" },
+        { value: 200, code: `int[] arr = {1, 3, 5, 7, 9};\nint left = 0;\nint right = arr.length - 1;\nint target = 6;\nwhile (left <= right) {\n    int mid = (left + right) / 2;\n    if (arr[mid] == target) {\n        System.out.println(mid);\n        break;\n    } else if (arr[mid] < target) {\n        left = mid + 1;\n    } else {\n        right = mid - 1;\n    }\n}`, question: "What is printed when this code executes?", answer: "nothing is printed" },
+        { value: 300, code: `int[] arr = {5, 3, 4};\nfor (int i = 1; i < arr.length; i++) {\n    int key = arr[i];\n    int j = i - 1;\n    while (j >= 0 && arr[j] > key) {\n        arr[j + 1] = arr[j];\n        j--;\n    }\n    arr[j + 1] = key;\n}\nSystem.out.println(arr[0] + " " + arr[1] + " " + arr[2]);`, question: "What is printed when this code executes?", answer: "3 4 5" },
+        { value: 400, code: `public class Rec {\n    public static int f(int n) {\n        if (n == 1) {\n            return 1;\n        }\n        return n + f(n - 1);\n    }\n    public static void main(String[] args) {\n        System.out.println(f(3));\n    }\n}`, question: "What is printed when this code executes?", answer: "6" },
+        { value: 500, code: `public class Rec {\n    public static int g(int n) {\n        if (n == 0) {\n            return 0;\n        }\n        return g(n - 1) + 2;\n    }\n    public static void main(String[] args) {\n        System.out.println(g(4));\n    }\n}`, question: "What is printed when this code executes?", answer: "8" },
+        { value: 600, code: `public class Search {\n    public static int bin(int[] arr, int target, int left, int right) {\n        if (left > right) return -1;\n        int mid = (left + right) / 2;\n        if (arr[mid] == target) return mid;\n        else if (arr[mid] < target) return bin(arr, target, mid + 1, right);\n        else return bin(arr, target, left, mid - 1);\n    }\n    public static void main(String[] args) {\n        int[] arr = {2, 4, 6, 8, 10};\n        System.out.println(bin(arr, 8, 0, arr.length - 1));\n    }\n}`, question: "What is printed when this code executes?", answer: "3" },
+      ],
+    },
   ],
+};
 
-  // ── COLUMN 2: Category 2 ────────────────────────────────────────
-  [
-    { q: "Question 2 for $200",  a: "Answer 2 for $200"  },
-    { q: "Question 2 for $400",  a: "Answer 2 for $400"  },
-    { q: "Question 2 for $600",  a: "Answer 2 for $600"  },
-    { q: "Question 2 for $800",  a: "Answer 2 for $800"  },
-    { q: "Question 2 for $1000", a: "Answer 2 for $1000" },
-    { q: "Question 2 for $2000", a: "Answer 2 for $2000" },
-  ],
+const SCORE_VALUES = [100, 200, 300, 400, 500, 600];
 
-  // ── COLUMN 3: Category 3 ────────────────────────────────────────
-  [
-    { q: "Question 3 for $200",  a: "Answer 3 for $200"  },
-    { q: "Question 3 for $400",  a: "Answer 3 for $400"  },
-    { q: "Question 3 for $600",  a: "Answer 3 for $600"  },
-    { q: "Question 3 for $800",  a: "Answer 3 for $800"  },
-    { q: "Question 3 for $1000", a: "Answer 3 for $1000" },
-    { q: "Question 3 for $2000", a: "Answer 3 for $2000" },
-  ],
-
-  // ── COLUMN 4: Category 4 ────────────────────────────────────────
-  [
-    { q: "Question 4 for $200",  a: "Answer 4 for $200"  },
-    { q: "Question 4 for $400",  a: "Answer 4 for $400"  },
-    { q: "Question 4 for $600",  a: "Answer 4 for $600"  },
-    { q: "Question 4 for $800",  a: "Answer 4 for $800"  },
-    { q: "Question 4 for $1000", a: "Answer 4 for $1000" },
-    { q: "Question 4 for $2000", a: "Answer 4 for $2000" },
-  ],
-
-  // ── COLUMN 5: Category 5 ────────────────────────────────────────
-  [
-    { q: "Question 5 for $200",  a: "Answer 5 for $200"  },
-    { q: "Question 5 for $400",  a: "Answer 5 for $400"  },
-    { q: "Question 5 for $600",  a: "Answer 5 for $600"  },
-    { q: "Question 5 for $800",  a: "Answer 5 for $800"  },
-    { q: "Question 5 for $1000", a: "Answer 5 for $1000" },
-    { q: "Question 5 for $2000", a: "Answer 5 for $2000" },
-  ],
-
-  // ── COLUMN 6: Category 6 ────────────────────────────────────────
-  [
-    { q: "Question 6 for $200",  a: "Answer 6 for $200"  },
-    { q: "Question 6 for $400",  a: "Answer 6 for $400"  },
-    { q: "Question 6 for $600",  a: "Answer 6 for $600"  },
-    { q: "Question 6 for $800",  a: "Answer 6 for $800"  },
-    { q: "Question 6 for $1000", a: "Answer 6 for $1000" },
-    { q: "Question 6 for $2000", a: "Answer 6 for $2000" },
-  ],
-
+// State
+let teams = [
+  { name: "Team 1", score: 0 },
+  { name: "Team 2", score: 0 },
+  { name: "Team 3", score: 0 },
 ];
-// ── END OF EDITABLE CONTENT ──────────────────────────────────────
+let used = {};
+let dailyDouble = {};
+let gameStarted = false;
+let selected = null;
+let showAnswer = false;
+let showChecks = false;
+let lastValue = 100;
 
-// answered[col][row] = bool
-let answered = Array.from({length:6}, () => Array(6).fill(false));
-
-const TEAM_COLORS = ['#1a3fa8','#7b42c9','#1d7a3a'];
-let teams = DEFAULT_TEAM_NAMES.map(name => ({ name, score: 0 }));
-
-// ─────────────────────────────────────────────
-//  STATE for current modal
-// ─────────────────────────────────────────────
-let activeCell = null; // { col, row }
-let editCell = null;
-
-// ─────────────────────────────────────────────
-//  RENDER
-// ─────────────────────────────────────────────
-function renderScoreboard() {
-  const sb = document.getElementById('scoreboard');
-  sb.innerHTML = '';
-  teams.forEach((t, i) => {
-    const card = document.createElement('div');
-    card.className = 'team-card';
-    card.innerHTML = `
-      <div class="team-name" title="Click to rename" onclick="renameTeam(${i}, this)" contenteditable="false">${t.name}</div>
-      <div class="team-score" id="score-${i}">$${t.score.toLocaleString()}</div>
-      <div class="score-btns">
-        <button class="score-btn plus"  onclick="adjustScore(${i}, 200)">+200</button>
-        <button class="score-btn minus" onclick="adjustScore(${i},-200)">−200</button>
-        <button class="score-btn reset-team" onclick="adjustScore(${i}, -teams[${i}].score)">Reset</button>
-      </div>`;
-    sb.appendChild(card);
+// Build used map
+function buildUsed() {
+  used = {};
+  game.categories.forEach(cat => {
+    cat.clues.forEach(clue => {
+      used[`${cat.key}${clue.value}`] = false;
+    });
   });
 }
+buildUsed();
 
-function renameTeam(i, el) {
-  el.contentEditable = "true";
-  el.focus();
-  el.onblur = () => {
-    el.contentEditable = "false";
-    teams[i].name = el.textContent.trim() || `Team ${i+1}`;
-    el.textContent = teams[i].name;
-    renderAwardBtns();
-  };
-  el.onkeydown = e => { if(e.key==='Enter') { e.preventDefault(); el.blur(); } };
+// ── RENDER SETUP ──
+function renderSetup() {
+  const list = document.getElementById('team-list');
+  list.innerHTML = teams.map((t, i) => `
+    <div class="team-entry">
+      <div class="team-num">${i+1}</div>
+      <input value="${escHtml(t.name)}" placeholder="Team ${i+1}"
+        oninput="updateTeamName(${i}, this.value)" />
+      <button class="btn ${teams.length <= 1 ? 'btn-disabled' : 'btn-rose'}"
+        onclick="removeTeam(${i})" ${teams.length <= 1 ? 'disabled' : ''}>Remove</button>
+    </div>
+  `).join('');
 }
 
-function adjustScore(i, delta) {
-  teams[i].score = Math.max(0, teams[i].score + delta);
-  document.getElementById(`score-${i}`).textContent = `$${teams[i].score.toLocaleString()}`;
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+// ── RENDER BOARD ──
 function renderBoard() {
-  const board = document.getElementById('board');
-  board.innerHTML = '';
-  // Row 0: category headers
-  categories.forEach((cat, c) => {
-    const h = document.createElement('div');
-    h.className = 'category-header';
-    h.textContent = cat;
-    h.title = 'Click to edit category name';
-    h.onclick = () => editCategory(c, h);
-    board.appendChild(h);
+  // Header
+  const header = document.getElementById('board-header');
+  header.innerHTML = game.categories.map(cat => `
+    <div class="cat-header">
+      <div class="cat-key">${cat.key}</div>
+      <div class="cat-title">${escHtml(cat.title)}</div>
+    </div>
+  `).join('');
+
+  // Rows
+  const rowsEl = document.getElementById('board-rows');
+  rowsEl.innerHTML = SCORE_VALUES.map(amount => `
+    <div class="board-row">
+      ${game.categories.map(cat => {
+        const clue = cat.clues.find(c => c.value === amount);
+        const id = `${cat.key}${amount}`;
+        const isUsed = Boolean(used[id]);
+        const isDD = Boolean(dailyDouble[id]);
+        return `
+          <div class="clue-cell${isUsed ? ' used' : ''}" id="cell-${id}"
+            ${!isUsed ? `onclick="openClue('${cat.key}', ${amount})"` : ''}
+            oncontextmenu="toggleDD('${id}'); return false;">
+            <div class="clue-value">$${amount}</div>
+            ${isDD && !isUsed ? `<div class="dd-label">Daily Double</div>` : ''}
+          </div>`;
+      }).join('')}
+    </div>
+  `).join('');
+
+  // All done check
+  const allDone = Object.values(used).length > 0 && Object.values(used).every(Boolean);
+  document.getElementById('all-done').classList.toggle('hidden', !allDone);
+}
+
+// ── RENDER SCOREBOARD ──
+function renderScoreboard() {
+  document.getElementById('last-val-display').textContent = `$${lastValue}`;
+  const el = document.getElementById('scoreboard-teams');
+  el.innerHTML = teams.map((t, i) => `
+    <div class="score-entry">
+      <div class="team-name">${escHtml(t.name)}</div>
+      <input class="score-input" type="number" inputmode="numeric"
+        value="${t.score}" onchange="updateScore(${i}, this.value)"
+        aria-label="${escHtml(t.name)} score" />
+    </div>
+  `).join('');
+}
+
+// ── RENDER CHECKS ──
+function renderChecks() {
+  const tests = validateGameData();
+  const passed = tests.filter(t => t.pass).length;
+  document.getElementById('checks-count').textContent = `${passed} / ${tests.length} passing`;
+  document.getElementById('checks-grid').innerHTML = tests.map(t => `
+    <div class="check-item ${t.pass ? 'check-pass' : 'check-fail'}">
+      <strong>${t.pass ? 'PASS' : 'FAIL'} — ${escHtml(t.name)}</strong>
+      ${escHtml(t.details)}
+    </div>
+  `).join('');
+}
+
+function validateGameData() {
+  const tests = [];
+  tests.push({ name: "has 6 categories", pass: game.categories.length === 6, details: `found ${game.categories.length}` });
+  const keys = game.categories.map(c => c.key);
+  tests.push({ name: "category keys are unique", pass: new Set(keys).size === keys.length, details: keys.join(', ') });
+  game.categories.forEach(cat => {
+    tests.push({ name: `${cat.key} has 6 clues`, pass: cat.clues.length === 6, details: `found ${cat.clues.length}` });
+    tests.push({ name: `${cat.key} values are 100-600`, pass: JSON.stringify(cat.clues.map(c => c.value)) === JSON.stringify(SCORE_VALUES), details: cat.clues.map(c => c.value).join(', ') });
   });
-  // Rows 1–6: cells
-  for (let r = 0; r < 6; r++) {
-    for (let c = 0; c < 6; c++) {
-      const cell = document.createElement('div');
-      cell.className = 'cell' + (answered[c][r] ? ' answered' : '');
-      cell.id = `cell-${c}-${r}`;
-      cell.textContent = answered[c][r] ? '' : `$${POINT_VALUES[r].toLocaleString()}`;
-      cell.dataset.col = c;
-      cell.dataset.row = r;
-      cell.onclick = () => openPlay(c, r);
-      cell.ondblclick = e => { e.stopPropagation(); openEditCell(c, r); };
-      board.appendChild(cell);
-    }
-  }
+  return tests;
 }
 
-function editCategory(c, el) {
-  el.contentEditable = "true";
-  el.focus();
-  document.execCommand('selectAll', false, null);
-  el.onblur = () => {
-    el.contentEditable = "false";
-    categories[c] = el.textContent.trim() || `Category ${c+1}`;
-    el.textContent = categories[c];
-  };
-  el.onkeydown = e => { if(e.key==='Enter') { e.preventDefault(); el.blur(); } };
+// ── ACTIONS ──
+function addTeam() {
+  teams.push({ name: `Team ${teams.length + 1}`, score: 0 });
+  renderSetup();
 }
 
-// ─────────────────────────────────────────────
-//  PLAY MODAL
-// ─────────────────────────────────────────────
-function openPlay(c, r) {
-  if (answered[c][r]) return;
-  activeCell = {c, r};
-  document.getElementById('modalPoints').textContent = `$${POINT_VALUES[r].toLocaleString()}`;
-  document.getElementById('modalCategory').textContent = categories[c];
-  document.getElementById('modalQuestion').textContent = questions[c][r].q;
-  const ansEl = document.getElementById('modalAnswer');
-  ansEl.textContent = questions[c][r].a;
-  ansEl.classList.remove('visible');
-  document.getElementById('revealBtn').style.display = 'inline-block';
-  document.getElementById('modalActions').style.display = 'none';
-  document.getElementById('playOverlay').classList.add('open');
-}
-function closePlay() {
-  document.getElementById('playOverlay').classList.remove('open');
-  activeCell = null;
-}
-function revealAnswer() {
-  document.getElementById('modalAnswer').classList.add('visible');
-  document.getElementById('revealBtn').style.display = 'none';
-  document.getElementById('modalActions').style.display = 'flex';
-  renderAwardBtns();
-}
-function renderAwardBtns() {
-  const wrap = document.getElementById('awardBtns');
-  if (!wrap) return;
-  wrap.innerHTML = '';
-  wrap.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;';
-  teams.forEach((t, i) => {
-    const pts = activeCell ? POINT_VALUES[activeCell.r] : 0;
-    const btn = document.createElement('button');
-    btn.className = 'award-btn correct';
-    btn.style.background = TEAM_COLORS[i];
-    btn.textContent = `+$${pts.toLocaleString()} → ${t.name}`;
-    btn.onclick = () => { adjustScore(i, pts); markAnswered(); toast(`+$${pts.toLocaleString()} awarded to ${t.name}!`); };
-    wrap.appendChild(btn);
-  });
-}
-function markAnswered() {
-  if (!activeCell) return;
-  const {c, r} = activeCell;
-  answered[c][r] = true;
-  const cell = document.getElementById(`cell-${c}-${r}`);
-  if (cell) { cell.classList.add('answered'); cell.textContent = ''; }
-  closePlay();
+function removeTeam(i) {
+  if (teams.length <= 1) return;
+  teams.splice(i, 1);
+  renderSetup();
 }
 
-// ─────────────────────────────────────────────
-//  EDIT SINGLE CELL
-// ─────────────────────────────────────────────
-function openEditCell(c, r) {
-  editCell = {c, r};
-  document.getElementById('editQ').value = questions[c][r].q;
-  document.getElementById('editA').value = questions[c][r].a;
-  document.getElementById('editOverlay').classList.add('open');
-}
-function closeEdit() {
-  document.getElementById('editOverlay').classList.remove('open');
-  editCell = null;
-}
-function saveEdit() {
-  if (!editCell) return;
-  const {c, r} = editCell;
-  questions[c][r].q = document.getElementById('editQ').value.trim() || questions[c][r].q;
-  questions[c][r].a = document.getElementById('editA').value.trim() || questions[c][r].a;
-  closeEdit();
-  toast('Question saved!');
+function updateTeamName(i, val) {
+  teams[i].name = val;
 }
 
-// ─────────────────────────────────────────────
-//  EDIT ALL
-// ─────────────────────────────────────────────
-function openEditAll() {
-  const wrap = document.getElementById('editAllFields');
-  wrap.innerHTML = '';
-  for (let c = 0; c < 6; c++) {
-    for (let r = 0; r < 6; r++) {
-      const sec = document.createElement('div');
-      sec.style.cssText = 'border-top:1px solid #1a3fa8;padding-top:10px;margin-top:10px;';
-      sec.innerHTML = `
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--gold);letter-spacing:0.08em">
-          ${categories[c]} — $${POINT_VALUES[r].toLocaleString()}
-        </div>
-        <label>Question</label>
-        <textarea id="ea-q-${c}-${r}" rows="2">${questions[c][r].q}</textarea>
-        <label>Answer</label>
-        <input type="text" id="ea-a-${c}-${r}" value="${questions[c][r].a}"/>
-      `;
-      wrap.appendChild(sec);
-    }
-  }
-  document.getElementById('editAllOverlay').classList.add('open');
-}
-function closeEditAll() { document.getElementById('editAllOverlay').classList.remove('open'); }
-function saveEditAll() {
-  for (let c = 0; c < 6; c++) {
-    for (let r = 0; r < 6; r++) {
-      const q = document.getElementById(`ea-q-${c}-${r}`).value.trim();
-      const a = document.getElementById(`ea-a-${c}-${r}`).value.trim();
-      if (q) questions[c][r].q = q;
-      if (a) questions[c][r].a = a;
-    }
-  }
-  closeEditAll();
-  toast('All questions saved!');
+function updateScore(i, val) {
+  const n = Number(val);
+  teams[i].score = isNaN(n) ? teams[i].score : n;
+  renderScoreboard();
 }
 
-// ─────────────────────────────────────────────
-//  RESET
-// ─────────────────────────────────────────────
-function resetBoard() {
-  answered = Array.from({length:6}, () => Array(6).fill(false));
-  renderBoard();
-  toast('Board reset!');
-}
 function resetScores() {
-  teams.forEach((t,i) => { t.score = 0; document.getElementById(`score-${i}`).textContent = '$0'; });
-  toast('Scores reset!');
+  teams.forEach(t => t.score = 0);
+  renderScoreboard();
+  renderSetup();
 }
 
-// ─────────────────────────────────────────────
-//  TOAST
-// ─────────────────────────────────────────────
-let toastTimer;
-function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+function startGame() {
+  teams = teams.map((t, i) => ({ ...t, name: t.name.trim() || `Team ${i+1}`, score: 0 }));
+  gameStarted = true;
+  document.getElementById('setup-screen').classList.add('hidden');
+  document.getElementById('game-screen').classList.remove('hidden');
+  document.getElementById('scoreboard').classList.remove('hidden');
+  renderBoard();
+  renderScoreboard();
+  renderChecks();
 }
 
-// ─────────────────────────────────────────────
-//  CLOSE overlays on backdrop click
-// ─────────────────────────────────────────────
-['playOverlay','editOverlay','editAllOverlay'].forEach(id => {
-  document.getElementById(id).addEventListener('click', e => {
-    if (e.target.id === id) {
-      if (id==='playOverlay') closePlay();
-      else if (id==='editOverlay') closeEdit();
-      else closeEditAll();
-    }
-  });
-});
+function backToSetup() {
+  gameStarted = false;
+  selected = null;
+  showAnswer = false;
+  document.getElementById('game-screen').classList.add('hidden');
+  document.getElementById('scoreboard').classList.add('hidden');
+  document.getElementById('setup-screen').classList.remove('hidden');
+  document.getElementById('modal-overlay').classList.add('hidden');
+  renderSetup();
+}
 
-// ─────────────────────────────────────────────
-//  INIT
-// ─────────────────────────────────────────────
-renderScoreboard();
-renderBoard();
+function resetBoard() {
+  buildUsed();
+  dailyDouble = {};
+  selected = null;
+  showAnswer = false;
+  lastValue = 100;
+  document.getElementById('modal-overlay').classList.add('hidden');
+  renderBoard();
+  renderScoreboard();
+}
+
+function toggleChecks() {
+  showChecks = !showChecks;
+  document.getElementById('checks-panel').classList.toggle('hidden', !showChecks);
+  document.querySelector('.game-actions button:last-child').textContent = showChecks ? 'Hide Checks' : 'Show Checks';
+}
+
+function toggleDD(id) {
+  dailyDouble[id] = !dailyDouble[id];
+  renderBoard();
+}
+
+function openClue(catKey, amount) {
+  const cat = game.categories.find(c => c.key === catKey);
+  const clue = cat.clues.find(c => c.value === amount);
+  const id = `${catKey}${amount}`;
+  selected = { ...clue, catKey, catTitle: cat.title, id };
+  lastValue = amount;
+  showAnswer = false;
+  renderModal();
+  document.getElementById('modal-overlay').classList.remove('hidden');
+  renderScoreboard();
+}
+
+function closeModal() {
+  selected = null;
+  showAnswer = false;
+  document.getElementById('modal-overlay').classList.add('hidden');
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+function markUsed() {
+  if (!selected) return;
+  used[selected.id] = true;
+  closeModal();
+  renderBoard();
+}
+
+function toggleAnswer() {
+  showAnswer = !showAnswer;
+  renderAnswerArea();
+  document.getElementById('answer-toggle-btn').textContent = showAnswer ? 'Hide Answer' : 'Show Answer';
+}
+
+function renderModal() {
+  document.getElementById('modal-meta').textContent = `${selected.catKey} • $${selected.value}`;
+  document.getElementById('modal-cat-title').textContent = selected.catTitle;
+  document.getElementById('modal-code').textContent = selected.code;
+  document.getElementById('modal-question').textContent = selected.question;
+  document.getElementById('answer-toggle-btn').textContent = 'Show Answer';
+  renderAnswerArea();
+}
+
+function renderAnswerArea() {
+  const el = document.getElementById('modal-answer-area');
+  if (showAnswer) {
+    el.innerHTML = `
+      <div class="answer-box">
+        <div class="box-label">Answer</div>
+        <div class="answer-text">${escHtml(selected.answer)}</div>
+      </div>`;
+  } else {
+    el.innerHTML = `<div class="answer-hidden">Answer hidden</div>`;
+  }
+}
+
+// Init
+renderSetup();
 </script>
 </body>
 </html>
