@@ -409,16 +409,16 @@
 // ║  3. Save the file — that's it! No buttons needed.               ║
 // ╚══════════════════════════════════════════════════════════════════╝
 
-const POINT_VALUES = [200, 400, 600, 800, 1000, 2000];
+const POINT_VALUES = [100, 200, 300, 400, 500, 600];
 
 // ── CATEGORY NAMES (6 total) ──────────────────────────────────────
 let categories = [
-  "Category 1",   // Column 1
-  "Category 2",   // Column 2
-  "Category 3",   // Column 3
-  "Category 4",   // Column 4
-  "Category 5",   // Column 5
-  "Category 6"    // Column 6
+  "Using Objects and Methods",   // Column 1
+  "Selection and Iteration",   // Column 2
+  "Class Creation",   // Column 3
+  "Data Collections 1",   // Column 4
+  "Data Collections 2",   // Column 5
+  "Data Collections 3"    // Column 6
 ];
 
 // ── TEAM NAMES ───────────────────────────────────────────────────
@@ -433,12 +433,113 @@ let questions = [
 
   // ── COLUMN 1: Category 1 ────────────────────────────────────────
   [
-    { q: "Question 1 for $200",  a: "Answer 1 for $200"  },  // $200
-    { q: "Question 1 for $400",  a: "Answer 1 for $400"  },  // $400
-    { q: "Question 1 for $600",  a: "Answer 1 for $600"  },  // $600
-    { q: "Question 1 for $800",  a: "Answer 1 for $800"  },  // $800
-    { q: "Question 1 for $1000", a: "Answer 1 for $1000" },  // $1000
-    { q: "Question 1 for $2000", a: "Answer 1 for $2000" },  // $2000
+    { q: `public class Calculator 
+{
+    public static void main(String[] args) 
+    {
+        int x = 10 / 0; // Line 3
+        System.out.println(x);
+    }
+}
+The code compiles but there is an error when it is executed. What type of error occurs when executing Line 3?
+`,  a: "Runtime Error"  },  // $200
+    { q: `int age = 0;
+double height = 0.0;
+boolean isTall = false;
+Scanner in = null;
+
+True/ False: The code segment correctly assigns default values to all its variables. 
+`,  a: "True"  },  // $400
+    { q: `public static void main(String args[]){
+    
+    int x=4;
+    int y=5;
+    int z=6;    
+    x+=y;
+    z-=y;
+    y*=x;
+    int a=y;
+    a/=5;
+    int b=y;
+    b%=a;
+    
+    System.out.println(" x is : "+ x);    
+    System.out.println(" y is : "+ y);
+    System.out.println(" z is : "+ z);
+    System.out.println(" a is : "+ a);
+    System.out.println(" b is : "+ b);
+}
+What will be the output of the above code?
+`,  a: `x is : 9
+y is : 45
+z is : 1
+a is : 9
+b is : 0`  },  // $600
+    { q: `double num = 75.0;
+String str = "" + (num + 0.2);
+System.out.println(str);
+True/False: The code segment above will produce an error.
+`,  a: "False, the code segment will print 75.2."  },  // $800
+    { q: `    public class Z  
+    {  
+        public static int A(int x)  
+        {  
+            x *= -x;  
+            return(x);  
+        }  
+          
+        public static int B(int x)  
+        {  
+            x += x;  
+            return(x);  
+        }  
+        
+        public static int C(int x)  
+        {  
+            x/=2;  
+            return(x);  
+        }  
+    } 
+What is returned as a result of calling Z.C(Z.A(Z.B(Z.C(5)))) executed from another class ?
+`, a: "-8" },  // $1000
+    { q: `public class Chalkboard {
+
+              public void write (String date, String time){
+                     
+                    System.out.println("Today's  Date: "  + date + "    Day: " + time);
+                     }
+              public void write (String subject){
+                 
+                    System.out.println("Subject:  "  +  subject);
+                     }
+              public void write (int lines , String content){
+                
+                    int x=1;
+                    while (x<=lines) {
+                    System.out.println (x + " :  " +content);
+                    x++;
+                   
+                     }
+                   }
+    public static void main (String args[]){
+                Chalkboard board = new Chalkboard();
+                 board.write (" 4/6/2021", "Tuesday" );
+                 board.write("Computer Science");
+                 System.out.println();
+                  board.write (3, "This is an example of a while loop that loops three times.");
+
+          }
+}
+
+
+What is the output after running the program code ?
+`, a: `Today's  Date:  4/6/2021    Day: Tuesday
+Subject:  Computer Science
+
+1 :  This is an example of a while loop that loops three times.
+2 :  This is an example of a while loop that loops three times.
+3 :  This is an example of a while loop that loops three times.
+` },  // $2000
   ],
 
   // ── COLUMN 2: Category 2 ────────────────────────────────────────
